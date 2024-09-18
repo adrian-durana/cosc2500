@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 ## Function and root
-root = 1*np.pi/2
+root = 3*np.pi/2
 def function(x):
     return np.cos(x)
 
@@ -25,8 +25,8 @@ def bisection(a,b): # input: starting interval (a,b)
         elif function(a)*function(c) < 0: b = c
         else: a = c
     return iterations
-    ## print('The approximate root is ' + str((a+b)/2) + '.')
-    ## print('The number of iterations required is ' + str(iterations) + '.')
+    # print('The approximate root is ' + str((a+b)/2) + '.')
+    # print('The number of iterations required is ' + str(iterations) + '.')
     
 ## Plot: bisection (fixed midpoint, changing radius)
 def bisection_plot1(points):
@@ -65,12 +65,13 @@ def iteration(x): # input: x (starting guess)
         iterations += 1
         if iterations >= 50: break
         x = function(x) + x
-    #print('The approximate root is ' + str(x) + '.')
-    #print('The number of iterations required is ' + str(iterations) + '.')
+    # print('The approximate root is ' + str(x) + '.')
+    # print('The number of iterations required is ' + str(iterations) + '.')
     return iterations
 
+## Plot: fixed-point iteration
 def iteration_plot(points):
-    x_values = np.linspace((-np.pi/2 + 10**(-3)), (3*np.pi/2 - 10**(-3)), points)
+    x_values = np.linspace((root - np.pi + 10**(-3)), (root + np.pi - 10**(-3)), points)
     y_values = []
     for i in range(0, points):
         n = iteration(x_values[i])
@@ -87,13 +88,27 @@ def newton(x): # input: x (starting guess)
     iterations = 0
     while np.abs(x-root) >= 10**(-9):
         iterations += 1
-        if iterations >= 100: break
+        if iterations >= 15: break
         x = x - (function(x) / ((function(x+h) - function(x-h)) / (2*h)))
-    print('The approximate root is ' + str(x) + '.')
-    print('The number of iterations required is ' + str(iterations) + '.')
+    # print('The approximate root is ' + str(x) + '.')
+    # print('The number of iterations required is ' + str(iterations) + '.')
+    return iterations
+
+## Plot: Newton's method
+def newton_plot(points):
+    x_values = np.linspace((root - 1.17), (root + 1.17), points)
+    y_values = []
+    for i in range(0, points):
+        n = newton(x_values[i])
+        y_values.append(n)
+    plt.plot(x_values, y_values)
+    plt.ylabel("Number of iterations")
+    plt.xlabel("Initial value")
+    plt.show()
 
 # bisection(1.561, 1.581)
 # iteration(3*np.pi/2- 10**(-12))
 # newton(2.73635)
 #bisection_plot1(10000)
-iteration_plot(10000)
+#iteration_plot(10000)
+newton_plot(10000)
