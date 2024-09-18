@@ -63,10 +63,23 @@ def iteration(x): # input: x (starting guess)
     iterations = 0
     while np.abs(x-root) >= 10**(-9):
         iterations += 1
-        if iterations >= 100: break
+        if iterations >= 50: break
         x = function(x) + x
-    print('The approximate root is ' + str(x) + '.')
-    print('The number of iterations required is ' + str(iterations) + '.')
+    #print('The approximate root is ' + str(x) + '.')
+    #print('The number of iterations required is ' + str(iterations) + '.')
+    return iterations
+
+def iteration_plot(points):
+    x_values = np.linspace((-np.pi/2 + 10**(-3)), (3*np.pi/2 - 10**(-3)), points)
+    y_values = []
+    for i in range(0, points):
+        n = iteration(x_values[i])
+        y_values.append(n)
+    plt.plot(x_values, y_values)
+    plt.ylabel("Number of iterations")
+    plt.xlabel("Initial value")
+    plt.show() 
+
 
 ## Newton's method, numerical derivative
 def newton(x): # input: x (starting guess)
@@ -82,4 +95,5 @@ def newton(x): # input: x (starting guess)
 # bisection(1.561, 1.581)
 # iteration(3*np.pi/2- 10**(-12))
 # newton(2.73635)
-bisection_plot1(10000)
+#bisection_plot1(10000)
+iteration_plot(10000)
