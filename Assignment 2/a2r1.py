@@ -8,44 +8,32 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-## Function and root
-root = 3*np.pi/2
+## Function and root, iteration cap
+root = 1
 def function(x):
-    return np.cos(x)
+    #return np.cos(x)
+    return (x+2)*(x-1)*(x-1)*(x-1)
+iterationCap = 50
 
-## Bisection method (Sauer, translated)
-def bisection(a,b): # input: starting interval (a,b)
+## Bisection method (Sauer, translated and modified)
+def bisection(a,b): # input: interval (a,b)
     if np.sign(function(a)) == np.sign(function(b)):
         raise ValueError("The condition f(a)f(b) < 0 is not satisfied.")
     iterations = 0
     while (b-a)/2 >= 10**(-9):
         iterations += 1
+        if iterations >= iterationCap: break
         c = (a+b)/2
-        if function(c) == 0: break
+        if np.abs(c-root) <= 10**(-9): break
         elif function(a)*function(c) < 0: b = c
         else: a = c
+    print('The approximate root is ' + str((a+b)/2) + '.')
+    print('The number of iterations required is ' + str(iterations) + '.')
     return iterations
-    # print('The approximate root is ' + str((a+b)/2) + '.')
-    # print('The number of iterations required is ' + str(iterations) + '.')
-    
-## Plot: bisection (fixed midpoint, changing radius)
-def bisection_plot1(points):
-    x_values = np.logspace(-9, np.log10(np.pi), num=points) # For cos(x)
-    y_values = []
-    interval_left = np.array([root]*points) - x_values
-    interval_right = np.array([root]*points) + x_values
-    for i in range(0, points):
-        n = bisection(interval_left[i], interval_right[i])
-        y_values.append(n)
-    plt.semilogx(x_values, y_values)
-    # plt.title("Interval radius versus number of iterations required, fixed midpoint, " + str(points) + "points")
-    plt.ylabel("Number of iterations")
-    plt.xlabel("Interval radius")
-    plt.show() 
 
-## Plot: bisection (changing midpoint, fixed radius)
-def bisection_plot2(points, radius):
-    x_values = np.linspace((root-(0.999*radius)),(root+(0.999*radius)), num=points)
+## Plot: bisection
+def bisection_plot(points, radius): # number of points, length of interval radius
+    x_values = np.linspace((root-((1-10**(-6))*radius)),(root+((1-10**(-6))*radius)), num=points) 
     y_values = []
     interval_left = x_values - np.array([radius]*points)
     interval_right = x_values + np.array([radius]*points)
@@ -53,25 +41,24 @@ def bisection_plot2(points, radius):
         n = bisection(interval_left[i], interval_right[i])
         y_values.append(n)
     plt.plot(x_values, y_values)
-    # plt.title("Midpoint location versus number of iterations required, fixed radius, " + str(points) + "points")
+    plt.title("Figure a: Root = " + str(root) + ", Interval radius " + str(round(radius,3)))
     plt.ylabel("Number of iterations")
     plt.xlabel("Midpoint location")
-    plt.show() 
 
 ## Fixed-point iteration (Sauer, translated and modified)
 def iteration(x): # input: x (starting guess)
     iterations = 0
     while np.abs(x-root) >= 10**(-9):
         iterations += 1
-        if iterations >= 50: break
+        if iterations >= 100: break
         x = function(x) + x
-    # print('The approximate root is ' + str(x) + '.')
-    # print('The number of iterations required is ' + str(iterations) + '.')
+    print('The approximate root is ' + str(x) + '.')
+    print('The number of iterations required is ' + str(iterations) + '.')
     return iterations
 
 ## Plot: fixed-point iteration
 def iteration_plot(points):
-    x_values = np.linspace((root - np.pi + 10**(-3)), (root + np.pi - 10**(-3)), points)
+    x_values = np.linspace((root - 0.5 + 10**(-6)), (root + 0.5 - 10**(-6)), points)
     y_values = []
     for i in range(0, points):
         n = iteration(x_values[i])
@@ -81,22 +68,21 @@ def iteration_plot(points):
     plt.xlabel("Initial value")
     plt.show() 
 
-
 ## Newton's method, numerical derivative
 def newton(x): # input: x (starting guess)
     h = 6.06*10**(-6)
     iterations = 0
-    while np.abs(x-root) >= 10**(-9):
+    while np.abs(x-root) >= 10**(-6):
         iterations += 1
-        if iterations >= 15: break
+        if iterations >= 100: break
         x = x - (function(x) / ((function(x+h) - function(x-h)) / (2*h)))
-    # print('The approximate root is ' + str(x) + '.')
-    # print('The number of iterations required is ' + str(iterations) + '.')
+    print('The approximate root is ' + str(x) + '.')
+    print('The number of iterations required is ' + str(iterations) + '.')
     return iterations
 
 ## Plot: Newton's method
 def newton_plot(points):
-    x_values = np.linspace((root - 1.17), (root + 1.17), points)
+    x_values = np.linspace((root - 0.5), (root + 0.5), points)
     y_values = []
     for i in range(0, points):
         n = newton(x_values[i])
@@ -105,10 +91,3 @@ def newton_plot(points):
     plt.ylabel("Number of iterations")
     plt.xlabel("Initial value")
     plt.show()
-
-# bisection(1.561, 1.581)
-# iteration(3*np.pi/2- 10**(-12))
-# newton(2.73635)
-#bisection_plot1(10000)
-#iteration_plot(10000)
-newton_plot(10000)

@@ -2,75 +2,59 @@
             # (b) the difficulty of choosing starting points or intervals that give convergence
 
 import numpy as np
-import scipy.integrate as sp
 import matplotlib.pyplot as plt
 
 ## Function (used derivative calculator)
 def function(x):
     return np.exp(-1*x**2)*(x+(3/13))*(x-(7/11))**2
 
-## Golden section search (unimodal f, minimum in a,b, number of steps k) (Sauer)
-def golden(a,b,k):
+## Graph
+x_values = np.linspace(-5, 5, num=1000)
+plt.plot(x_values, function(x_values))
+plt.plot(x_values, np.zeros(1000), color='black')
+plt.xlim(-5, 5)
+plt.ylim(-1, 1)
+#plt.show()
+
+## Golden section search (unimodal f, minimum in a,b, number of steps k) (Sauer, modified)
+def golden(a,b, tol=1e-9, maxiterations = 1000):
     g = (np.sqrt(5)-1)/2
-    x1 = a+(1-g)*(b-a)
-    x2 = a+g*(b-a)
-    f1 = function(x1)
-    f2 = function(x2)
-    for i in range(1, k):
+    x1, x2 = a+(1-g)*(b-a), a+g*(b-a)
+    f1, f2 = function(x1), function(x2)
+    for i in range(0, maxiterations):
+        if np.abs(a-b) <= tol: break
         if f1 < f2:
-            b = x2
-            x2 = x1
+            b, x2, f2 = x2, x1, f1
             x1 = a+(1-g)*(b-a)
-            f2 = f1
             f1 = function(x1)
         else:
-            a = x1
-            x1 = x2
+            a, x1, f1 = x1, x2, f2
             x2 = a+g*(b-a)
-            f1 = f2
             f2 = function(x2)
     y = (a+b)/2
-    return y
+    print("The approximate minima is " + str(y) + '.')
+    print("The number of iterations required is " + str(i+1) + '.')
 
-## Successive parabolic interpretation (initial guesses r,s,t, number of steps k) (Sauer)
-def parabola(r,s,t,k):
-    x = [r,s,t]
-    x[0] = r
-    x[1] = s
-    x[2] = t
-    fr = function(r)
-    fs = function(s)
-    ft = function(t)
-    for i in range(3, k+2):
-        new = (r+s)/2-(fs-fr)*(t-r)*(t-s)/(2*((s-r)*(ft-fs)-(fs-fr)*(t-s)))
-        x.append(new)
-        t = s
-        s = r
-        r = x[i]
-        ft = fs
-        fs = fr
+## Successive parabolic interpolation (initial guesses r,s,t, number of steps k) (Sauer)
+def parabola(r,s,t, tol=1e-9, maxiterations = 1000):
+    fr, fs, ft = function(r), function(s), function(t)
+    for i in range(0, maxiterations):
+        if np.abs(r-s) <= tol: break
+        n = (r+s)/2-(fs-fr)*(t-r)*(t-s)/(2*((s-r)*(ft-fs)-(fs-fr)*(t-s)))
+        t, s, r = s, r, n
+        ft, fs = fs, fr
         fr = function(r)
-    return x[-1]
+    print("The approximate minima is " + str(r) + '.')
+    print("The number of iterations required is " + str(i+1) + '.')
 
-## Newton's method
-def derivative_one(x):
-    return -((3146*x**4 - 3278*x**3 - 4369*x**2 + 3572*x - 175) * np.exp(-1*x**2)) / 1573
-def derivative_two(x):
-    return ((6292*x**5 - 6556*x**4 - 21322*x**3 + 16978*x**2 + 8388*x - 3572) * np.exp(-1*x**2)) / 1573
-def newton(x, k):
-    array = [x]
-    for i in range(1,k):
-        array.append(array[i-1] - (derivative_one(array[i-1]))/(derivative_two(array[i-1])))
-    ans = array[k-1]
-    return ans
-
-## Secant method
-def secant(x, k):
-    array = [x]
+## Newton's method, numerical derivative
+def newton(x, tol=1e-9, maxiterations = 1000): # input: x (starting guess)
     h = 6.06*10**(-6)
-    for i in range(1,k):
-        numder_one = (function(array[i-1]+h) - function(array[i-1]-h)) / (2*h)
-        numder_two = (function(array[i-1]+h)+function(array[i-1]-h)-2*function(array[i-1])) / (h**2)
-        array.append(array[i-1] - (numder_one/numder_two))
-    ans = array[k-1]
-    return ans
+    for i in range(maxiterations):
+        numder_one = ((function(x+h) - function(x-h)) / (2*h))
+        numder_two = (function(x+h) + function(x-h) - 2*function(x)) / (h**2)
+        y = x - (numder_one / numder_two)
+        if np.abs(x-y) <= tol: break
+        x = y
+    print('The approximate root is ' + str(x) + '.')
+    print('The number of iterations required is ' + str(i+1) + '.')
