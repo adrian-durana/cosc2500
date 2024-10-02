@@ -1,117 +1,86 @@
 import numpy as np
-import scipy as sp
+from scipy import integrate as sp
 import matplotlib.pyplot as plt
+
+## Variables
+a, b = 0, 1
+
+F = 3
+if F == 1: y_a, y_b = 0, np.exp(1)/3
+elif F == 2: y_a, y_b = 1, np.exp(1)
+elif F == 3: y_a, y_b = np.exp(1)**3, 1
+else: raise ValueError("Check F")
 
 #####################
 ## Shooting method ##
 #####################
 
-## ODE solver (finds initial value of first derivative)
-def shooting(y_a, a=0, b=1, y0=0, y_b=np.exp(1)/3): # Initial guess of y'(a) = s
-    def system(t,y): # system of first-order ODEs
-        return [y[1], y[0] + (2/3)*np.exp(t)]
-        # y[0]' = y[1], y[1]' = ...
-    solution = sp.integrate.solve_ivp(system, [a,b], [y0,y_a], t_eval=[b])
-    return float(solution.y[0, -1] - y_b) # difference between guess and y_b
+## System of first-order ODEs
+def system(t,y): # y[0]' = y[1], y[1]' = ...
+    if F == 1: return [y[1], y[0] + 2*np.exp(t)/3] 
+    elif F == 2: return [y[1], y[0]*(2 + (4*t**2))]
+    elif F == 3: return [y[1], 3*y[0] - 2*y[1]]
 
-## Guess two values s.t. product < 0
-print(shooting(1))
-print(shooting(0))
+## Guessing second initial condition
+def sGuess(s):
+    solution = sp.solve_ivp(system, [a,b], [y_a, s], t_eval=[b])
+    return float(solution.y[0,-1] - y_b)
 
-## Bisection method (Sauer, modified)
-def bisection(a,b,iterationCap=50): # interval (a,b)
-    if np.sign(shooting(a)) == np.sign(shooting(b)):
-        raise ValueError("The condition f(a)f(b) < 0 is not satisfied.")
-    iterations = 0
-    while (b-a)/2 >= 10**(-9):
-        iterations += 1
-        c = (a+b)/2
-        if iterations >= iterationCap: break
-        elif shooting(a)*shooting(c) < 0: b = c
-        else: a = c
-    #print("The approximate value for y'(a) is " + str((a+b)/2) + '.')
-    #print('The number of iterations required is ' + str(iterations) + '.')
-    return int((a+b)/2)
-
-## Store value of bisection method answer
-b_ans = bisection(1, 0)
-
-## Solve ODE numerically, plot
-def system(t, y):
-    y1, y2 = y  # y = y1, dy/dt = y2
-    return [y2, y1 + 2/3 * np.exp(t)]  # dy1/dt = y2, dy2/dt = ...
-y0 = [0, b_ans] # Initial conditions y(0), y'(0)
-sol = sp.integrate.solve_ivp(system, [0, 1], [0, 1/3], rtol = 1e-9, atol = 1e-9, max_step = 1e-3)
-t = sol.t
-y = sol.y[0]
-plt.plot(t,y, label = 'approx.')
-
-## Exact solution of ODE, plot
-def solution(x):
-    return (1/3)*x*np.exp(x) 
-x_values = np.linspace(0,1,num=100)
-y_values = solution(x_values)
-plt.plot(x_values, y_values, label = 'exact')
-
+## Solving ODE using bisection
+def sSolve(g1, g2):
+    def bisection(A, B, tol = 1e-9, maxiterations = 1000):
+        if np.sign(sGuess(A)) == np.sign(sGuess(B)):
+            raise ValueError("The condition f(a)f(b) < 0 is not satisfied.")
+        for i in range(0, int(maxiterations)):
+            c = (A+B)/2
+            if sGuess(A)*sGuess(c) < 0: B = c
+            else: A = c
+            if np.abs(A-B) < tol: break
+        return c
+    sol = sp.solve_ivp(system, [a, b], [y_a, bisection(g1,g2)], rtol = 1e-9, atol = 1e-9, max_step = 1e-3)
+    plt.plot(sol.t, sol.y[0], label = 'Shooting method')
 
 ##############################
 ## Finite difference method ##
 ##############################
 
-"""
-Consider the following partition of [a,b] with spacing h:
-    t[a] = t[0] < t[1] < ... < t[n+1] = t[b]
-Let w_i = w(t_i) be an approximation for the correct values y_i = y(t_i) at discrete points t_i.
+def finite(n):
+    A = np.zeros((n,n))
+    c = np.zeros(n)
+    t = np.linspace(a,b,num=n)
+
+    if F == 1: factor = (1/(n+1))**2
+    elif F == 2: factor = (2+4*t[i-1]**2) / (n+1)**2
+    elif F == 3: factor = 3 / (n+1)**2
+
+    for i in range(1,n):
+        A[i-1, i] = A[i, i-1] = 1
+        if F == 1:
+            A[i-1, i-1] = -2 - factor
+            c[i-1] = (2/3)*factor*np.exp(t[i-1])
+        elif F == 2:
+            A[i-1, i-1] = -2 - factor
+        elif F == 3:
+            A[i-1, i-1] = -2 - factor
+            A[i-1, i] = (1 + 1 / (n+1))
+            A[i, i-1] = (1 - 1 / (n+1))
+    A[n-1,n-1] = -2 - factor
     
-Substitute values into the numerical approximation for the second derivative, and h = 1/n+1:
-    ( ( w[i+1] - 2*w[i] + w[i-1] ) / h**2 ) = w[i] + (2/3)*np.exp(t[i])
-    w[i-1] - (2 + h**2)*w[i] + w[i+1] = (2/3)*(h**2)*np.exp(t[i])
-    w[i-1] - (2 + (1/(n+1))**2)*w[i] + w[i+1] = (2/3)*((1/(n+1))**2)*np.exp(t[i])
+    if F == 3: 
+        c[0] -= (1 - 1 / (n+1))*y_a
+        c[n-1] -= (1 + 1 / (n+1))*y_b
+    else: 
+        c[0] -= y_a
+        c[n-1] -= y_b
 
-Assume n = 3:
-    w[0] + w[1] * (2 + (1/(n+1))**2) + w[2] = (2/3)*((1/(n+1))**2)*np.exp(t[1])
-    w[1] + w[2] * (2 + (1/(n+1))**2) + w[3] = (2/3)*((1/(n+1))**2)*np.exp(t[2])
-    w[2] + w[3] * (2 + (1/(n+1))**2) + w[4] = (2/3)*((1/(n+1))**2)*np.exp(t[3])
+    solution = np.linalg.solve(A, c)
+    plt.plot(t, solution, label = 'Finite difference')
 
-Insert boundary conditions: y(0) = w[0] =  0, y(1) = w[4] = e/3
-    0 + w[1] * (-33/16) + w[2] = (1/24)*np.exp(t[1])
-    w[1] + w[2] * (-33/16) + w[3] = (1/24)*np.exp(t[2])
-    w[2] + w[3] * (-33/16) + (np.exp(1)/3) = (1/24)*np.exp(t[3])
-
-Put into matrix equation
-| -33/16  1     0   |  |w[1]|       | (1/24)*np.exp(t[1]) - 0              |
-|    1  -33/16  1   |  |w[2]|   =   | (1/24)*np.exp(t[2])                  |
-|   0     1  -33/16 |  |w[3]|       | (1/24)*np.exp(t[3]) -  (np.exp(1)/3) |
-"""
-
-# Preparation
-n = 1000
-h = 1 / (n+1)
-A = np.zeros((n,n)) # 0th column is w[0]
-c = np.zeros((n,1))
-t_n = np.linspace(0,1,num=n)
-
-# Create the matrix
-for i in range(1,n):
-    A[i-1, i-1] = -(2 + (1/(n+1))**2)
-    A[i-1, i] = 1
-    A[i, i-1] = 1
-    c[i-1] = (2/3)*((1/(n+1))**2)*np.exp(t[i-1])
-A[n-1,n-1] = -(2 + (1/(n+1))**2)
-
-# Value of boundary conditions y(0), y(1)
-c[0] = c[0] - 0 # subtract left boundary condition
-c[n-1] = c[n-1] - np.exp(1)/3 # sub. r.b.c
-
-# Solve and plot!
-solution = np.linalg.solve(A, c)
-print(solution)
-plt.plot(t_n, solution, label = 'finite')
-
-## Finish the plot
+## Plotting
 plt.legend()
 plt.show()
 
-"""
-Task: generalise for all second-order linear ODEs
-"""
+# Call functions here
+sSolve(-100, 100)
+finite(1000)
+
