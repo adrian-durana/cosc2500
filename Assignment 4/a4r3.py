@@ -24,4 +24,4 @@ def true(a,b,p=0.7):
 print(group(-2, 5))
 print(true(-2, 5))
 
-#(-2,5) or (-5,3) or (-8,3)
+## Coordinates: (-2,5) or (-5,3) or (-8,3)
