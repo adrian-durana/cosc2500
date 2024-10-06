@@ -74,9 +74,9 @@ def poisson(xl,xr,yb,yt,M,N):
 
 ## True value
 def true():
-    def f(x, y):
-        if F == 1: return np.exp(-np.pi*y) * np.sin(np.pi*x)
-        if F == 2: return np.sinh(np.pi*x)*np.sin(np.pi*y)
+    def f(x, t):
+        if F == 1: return np.exp(2*t+x) + np.exp(2*t-x)
+        if F == 2: return np.exp(2*t+x)
     x = np.linspace(0, 1, num=30)
     y = np.linspace(0, 1, num=30)
     X, Y = np.meshgrid(x, y)

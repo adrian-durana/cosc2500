@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 ## Euler-Maruyama method
 def euler_maruyama(h):
     n = int(1/h)
-    W = np.zeros(n+1) # y(0) = 0
+    W = np.zeros(n+1) 
     rand = np.random.normal(0,1,n)
     dB = np.zeros(n+1)
     B = np.zeros(n+1)
@@ -21,10 +21,6 @@ def group(h, n=5000):
     for i in range(n): A[i] = euler_maruyama(h)
     print(np.mean(A))
 
-## Call the function here!
-#group(0.001)
-
-
 ## How to find the error
 def plot(h):
     n = int(1/h)
@@ -32,5 +28,7 @@ def plot(h):
     plt.plot(x_values, euler_maruyama(h))
     plt.show()
 
+## Call the function here!
+group(0.001)
 plot(0.01)
 
