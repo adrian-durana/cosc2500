@@ -72,7 +72,7 @@ def poisson(F,xl,xr,yb,yt,M,N):
     plt.show()
 
 ## True value
-def true():
+def true(F):
     def f(x, t):
         if F == 1: return np.exp(2*t+x) + np.exp(2*t-x)
         if F == 2: return np.exp(2*t+x)
@@ -89,4 +89,4 @@ def true():
     plt.show()
 
 poisson(1,0,1,0,1,100,100)
-true()
+true(1)

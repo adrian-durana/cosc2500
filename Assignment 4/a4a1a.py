@@ -57,7 +57,7 @@ def heatfd(F,xl,xr,yb,yt,M,N):
 
 ## True value
 def true():
-    def f(x, t):
+    def f(F, x, t):
         if F == 1: return np.exp(2*t+x) + np.exp(2*t-x)
         if F == 2: return np.exp(2*t+x)
     x = np.linspace(0, 1, num=30)
@@ -76,4 +76,4 @@ def true():
     plt.show()
 
 heatfd(1,0,1,0,1,10,1000)
-true()
+true(1)
