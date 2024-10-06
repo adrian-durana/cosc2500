@@ -2,19 +2,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-## Function
-F = 1
-
-######################
-### Poisson solver ###
-######################
+####################
+## Poisson solver ##
+####################
 
 # A translation of poisson.m given in Sauer
 # Finite difference sovler for 2D Poisson equation with Dirichlet boundary conditions on a rectangle
 # Input: rectangle domain [xl,xr] x [yb,yt] with M x N space steps
 # Output: matrix 'w' holding solution values
 
-def poisson(xl,xr,yb,yt,M,N):
+def poisson(F,xl,xr,yb,yt,M,N):
     f = lambda x,y: 0
     if F == 1:
         g1 = lambda x: np.sin(np.pi*x) # 0 <= x <= 1
@@ -70,6 +67,8 @@ def poisson(xl,xr,yb,yt,M,N):
     ax.set_xlabel('x')
     ax.set_ylabel('y')
     ax.set_zlabel('f(x,y)')
+    ax.set_xlim([xl, xr])
+    ax.set_ylim([yb, yt])
     plt.show()
 
 ## True value
@@ -89,5 +88,5 @@ def true():
     ax.set_zlabel('f(x,y)')
     plt.show()
 
-poisson(0,1,0,1,100,100)
+poisson(1,0,1,0,1,100,100)
 true()
