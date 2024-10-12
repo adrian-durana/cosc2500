@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
 ####################
-## Poisson solver ##
+## Laplace solver ##
 ####################
 
 # A translation of poisson.m given in Sauer
