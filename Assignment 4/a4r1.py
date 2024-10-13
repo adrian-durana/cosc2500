@@ -88,5 +88,5 @@ def true(F):
     ax.set_zlabel('f(x,y)')
     plt.show()
 
-poisson(1,0,1,0,1,100,100)
+poisson(1,0,1,0,1,10,10)
 true(1)

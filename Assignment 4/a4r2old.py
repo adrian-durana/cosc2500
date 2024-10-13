@@ -28,6 +28,10 @@ def volume(dim):
     return v
 
 # Results
+
+for i in range(10):
+    print(estimate(11))
+
 for i in range(2,11):
     print('Dimension ' + str(i))
     print(estimate(i))
