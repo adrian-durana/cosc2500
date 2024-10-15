@@ -11,7 +11,7 @@ from mpl_toolkits.mplot3d import Axes3D
 # Input: space interval [xl,xr], time interval [yb,yt], space and time steps M, N
 # Output: matrix 'w' holding solution values
 
-def heatfd(F,xl,xr,yb,yt,M,N):
+def heatfd(F,N=500,xl=0,xr=1,yb=0,yt=1,M=10):
     D = 2
     if F == 1:
         f = lambda x: 2*np.cosh(x)
@@ -50,18 +50,18 @@ def heatfd(F,xl,xr,yb,yt,M,N):
     ax.set_xlabel('x')
     ax.set_ylabel('t')
     ax.set_zlabel('f(x,t)')
-    ax.view_init(60, 30)
+    ax.view_init(30, -45)
     ax.set_xlim([xl, xr])
     ax.set_ylim([yb, yt])
     plt.show()
 
 ## True value
-def true():
-    def f(F, x, t):
+def true(F):
+    def f(x, t, F=F):
         if F == 1: return np.exp(2*t+x) + np.exp(2*t-x)
         if F == 2: return np.exp(2*t+x)
-    x = np.linspace(0, 1, num=30)
-    y = np.linspace(0, 1, num=30)
+    x = np.linspace(0, 1, num=1000)
+    y = np.linspace(0, 1, num=1000)
     X, Y = np.meshgrid(x, y)
     Z = f(X, Y)
     fig = plt.figure()
@@ -70,10 +70,12 @@ def true():
     ax.set_xlabel('x')
     ax.set_ylabel('t')
     ax.set_zlabel('f(x,t)')
-    ax.view_init(60, 30)
+    ax.view_init(30, -45)
     ax.set_xlim([0, 1])
     ax.set_ylim([0, 1])
     plt.show()
 
-heatfd(1,0,1,0,1,10,1000)
-true(1)
+
+heatfd(1,382)
+heatfd(2,382)
+#true(2)

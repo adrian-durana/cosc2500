@@ -11,7 +11,7 @@ from mpl_toolkits.mplot3d import Axes3D
 # Input: rectangle domain [xl,xr] x [yb,yt] with M x N space steps
 # Output: matrix 'w' holding solution values
 
-def poisson(F,xl,xr,yb,yt,M,N):
+def poisson(F,M=10,N=10,xl=0,xr=1,yb=0,yt=1):
     f = lambda x,y: 0
     if F == 1:
         g1 = lambda x: np.sin(np.pi*x) # 0 <= x <= 1
@@ -58,7 +58,7 @@ def poisson(F,xl,xr,yb,yt,M,N):
         b[temp] = g4(y[j]) 
 
     v = np.linalg.solve(A, b).flatten()
-    Z = np.transpose(np.reshape(v, (m,n)))
+    Z = np.reshape(v, (m,n))
 
     X, Y = np.meshgrid(x, y)
     fig = plt.figure()
@@ -69,15 +69,16 @@ def poisson(F,xl,xr,yb,yt,M,N):
     ax.set_zlabel('f(x,y)')
     ax.set_xlim([xl, xr])
     ax.set_ylim([yb, yt])
+    ax.view_init(30, 45)
     plt.show()
 
 ## True value
 def true(F):
-    def f(x, t):
-        if F == 1: return np.exp(2*t+x) + np.exp(2*t-x)
-        if F == 2: return np.exp(2*t+x)
-    x = np.linspace(0, 1, num=30)
-    y = np.linspace(0, 1, num=30)
+    def f(x, y):
+        if F == 1: return np.exp(-np.pi*y)*np.sin(x*np.pi)
+        if F == 2: return np.sinh(x*np.pi)*np.sin(y*np.pi)
+    x = np.linspace(0, 1, num=100)
+    y = np.linspace(0, 1, num=100)
     X, Y = np.meshgrid(x, y)
     Z = f(X, Y)
     fig = plt.figure()
@@ -86,7 +87,10 @@ def true(F):
     ax.set_xlabel('x')
     ax.set_ylabel('y')
     ax.set_zlabel('f(x,y)')
+    ax.set_xlim([0, 1])
+    ax.set_ylim([0, 1])
+    ax.view_init(30, 45)
     plt.show()
 
-poisson(1,0,1,0,1,10,10)
-true(1)
+poisson(2)
+true(2)

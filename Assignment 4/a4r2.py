@@ -1,5 +1,6 @@
 import math
 import numpy as np
+from scipy import stats
 import time
 start_time = time.time()
 from concurrent.futures import ProcessPoolExecutor
@@ -23,15 +24,18 @@ def estimate(dim, inside=0):
 
 if __name__ == '__main__':
     ## Parallelisation
-    dimensions = list(range(2, 12))
+    dimensions = list(range(2, 4))
     with ProcessPoolExecutor() as executor:
         results = list(executor.map(estimate, dimensions))
     ## Display results
     for i, est_volume in enumerate(results, start=2):
-        print(f"Dimension {i-1}")
+        print(f"{i}-ball")
         print(f"Estimated volume: {est_volume}")
         print(f"True volume: {volume(i)}")
-    print("Execution time: %s seconds" % (time.time() - start_time))
-
-## Create statistical estimate of result
-
+        ## Create statistical estimate of result
+        print(f"Error: {abs(volume(i) - est_volume)}")
+        error = stats.norm.ppf(0.95)*np.sqrt(est_volume*(1-est_volume)/n_points)
+        C_a = np.floor((est_volume - error) * 10**6) / 10**6
+        C_b = np.ceil((est_volume + error) * 10**6) / 10**6
+        print(f"90% confidence interval: ({C_a},{C_b})")
+    print("--- Execution time: %s seconds ---" % (time.time() - start_time))
