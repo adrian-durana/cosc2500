@@ -75,7 +75,7 @@ def true(F):
     ax.set_ylim([0, 1])
     plt.show()
 
-
+## Call function here
 heatfd(1,382)
 heatfd(2,382)
-#true(2)
+true(2)

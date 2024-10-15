@@ -92,5 +92,6 @@ def true(F):
     ax.view_init(30, 45)
     plt.show()
 
+## Call function here
 poisson(2)
 true(2)

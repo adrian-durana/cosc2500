@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
 ## Euler-Maruyama method
 def euler_maruyama(h):
@@ -13,22 +12,16 @@ def euler_maruyama(h):
         dB[i+1] = rand[i] * np.sqrt(h)
         B[i+1] = B[i] + dB[i+1]
         W[i+1] = W[i] + B[i]*h + (9*W[i]**2)**(1/3)*h
-    return W #W[-2]
-
+    return W[-1]
+    
 ## Perform 5000 simulations
 def group(h, n=5000):
-    A = np.zeros(n)
+    A = np.zeros(n+1)
     for i in range(n): A[i] = euler_maruyama(h)
     print(np.mean(A))
 
-## How to find the error
-def plot(h):
-    n = int(1/h)
-    x_values = np.linspace(0,1,num=(n+1))
-    plt.plot(x_values, euler_maruyama(h))
-    plt.show()
-
 ## Call the function here!
+group(0.1)
+group(0.01)
 group(0.001)
-plot(0.01)
-
+group(0.0001)

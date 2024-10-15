@@ -1,6 +1,4 @@
 import numpy as np
-import time
-start_time = time.time()
 
 ## Singular walk
 def walk(a, b, p = 0.7, max = int(1e6), w=0, j=0):
@@ -15,23 +13,12 @@ def walk(a, b, p = 0.7, max = int(1e6), w=0, j=0):
 def group(a, b, n=10000):
     A = np.zeros(n)
     for i in range(n): A[i] = walk(a,b)
-    return np.mean(A)
+    print(f"Estimated probability: {np.mean(A)}")
 
 ## True value of probability
 def true(a,b,p=0.7):
     true = (((1-p)/p)**(-a) - 1)/(((1-p)/p)**(b-a) - 1)
-    return true
+    print(f"True probability: {true}")
 
-## Call functions here
-print(group(-2, 5))
-print(true(-2, 5))
-
-## Coordinates: (-2,5) or (-5,3) or (-8,3)
-print("--- Execution time: %s seconds ---" % (time.time() - start_time))
-
-## Estimated run time: 190s
-"""
-0.8168
-0.8185001387948708
---- Execution time: 190.39128708839417 seconds ---
-"""
+group(-5, 3)
+true(-5, 3)
