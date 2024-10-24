@@ -8,20 +8,20 @@ With arclength to check lengths
 """
 
 ## Parameters
-k = 2
-x0, y0 = 5, 0
-tmax = 5
+k = 0.75
+x0, y0 = 0, 2
+tmax = np.pi*6
 h = 0.001
 t_eval = np.linspace(0, tmax, int(1/h))
 
 ## Target trajectory
 def T_x(t): return t
-def T_y(t): return t**2
+def T_y(t): return np.sin(t)
 def T(t): return np.array([T_x(t), T_y(t)])
 
 ## Target derivative
-def dT_x(t): return 0*t + 1
-def dT_y(t): return 2*t
+def dT_x(t): return 0*t + 1 
+def dT_y(t): return np.cos(t) 
 def dT(t): return np.array([dT_x(t), dT_y(t)])
 
 ## Pursuer trajectory - system of ODEs
@@ -65,18 +65,32 @@ arclength_target = compute_arclength(x_target, y_target)
 print(f"Arclength of pursuer: {arclength_pursuer:.6f}")
 print(f"Arclength of target: {arclength_target:.6f}")
 
+## Analytic solution (1)
+x_span = np.linspace(0, 2, int(1/0.000095)-1)
+def true(x, x0=x0, y0=y0):
+    eta = (x / x0)**2
+    r0 = np.sqrt(x0**2 + y0**2)
+    y = (1/4)*((y0+r0)*eta + (y0-r0)*np.log(eta) + 3*y0 - r0)
+    return y
+def false(x, x0=x0):
+    y = (1/2)*(((x**2 - x0**2)/(2*x0)) - x0*np.log(x/x0))
+    y = 0.5 * ((x**(1 + 1/k)) / (x0**(1/k) * (1 + 1/k)) - (x0**(1/k) * x**(1 - 1/k)) / (1 - 1/k)) + (x0 * k) / (k**2 - 1)
+    return y
+#plt.plot(x_span, true(x_span), color='green', label='Analytic solution') ## Analytic solution
+#plt.plot(x_span, false(x_span), color='brown', label='Analytic solution')
+
 ## Plotting
 plt.figure(figsize=(5, 5))
-plt.plot(x_pursuer, y_pursuer, label='Pursuer', color='blue')
+plt.plot(x_pursuer, y_pursuer, label='Pursuer curve', color='blue')
 plt.scatter(x_pursuer[0], y_pursuer[0], color='blue')
-plt.plot(x_target, y_target, label='Target', color='red')
+plt.plot(x_target, y_target, label='Target curve', color='red')
 plt.scatter(x_target[0], y_target[0], color='red')
 
 if len(solution.t_events[0]) > 0:
     plt.scatter(x_pursuer[-1], y_pursuer[-1], marker='x', color='green', label='Intersection')
 else:
-    plt.scatter(x_pursuer[-1], y_pursuer[-1], marker='x', color='blue', label='Pursuer End')
-    plt.scatter(x_target[-1], y_target[-1], marker='x', color='red', label='Target End')
+    plt.scatter(x_pursuer[-1], y_pursuer[-1], marker='x', color='blue', label='Pursuer')
+    plt.scatter(x_target[-1], y_target[-1], marker='x', color='red', label='Target')
 
 plt.title('Pursuit Curve')
 plt.xlabel('x')
