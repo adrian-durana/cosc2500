@@ -15,14 +15,14 @@ h = 0.001
 t_eval = np.linspace(0, tmax, int(1/h))
 
 ## Target trajectory
-def T_x(t): return t
-def T_y(t): return t**2
-def T_z(t): return 0*t 
+def T_x(t): return 0*t
+def T_y(t): return t
+def T_z(t): return 0*t
 def T(t): return np.array([T_x(t), T_y(t), T_z(t)])
 
 ## Target derivative
-def dT_x(t): return 0*t + 1
-def dT_y(t): return 2*t
+def dT_x(t): return 0*t
+def dT_y(t): return 0*t + 1
 def dT_z(t): return 0*t
 def dT(t): return np.array([dT_x(t), dT_y(t), dT_z(t)])
 
@@ -38,7 +38,7 @@ def pursuit_curve(t, P):
 def proximity_event(t, P):
     x, y, z = P
     distance = np.linalg.norm(T(t) - np.array([x, y, z])) # Norm of distance vector 
-    return distance - 0.01  # Trigger when distance is less than 1e-6
+    return distance - 0.0001  # Trigger when distance is less than 1e-6
 proximity_event.terminal = True  # Terminate integration if event occurs
 
 ## ODE solution
@@ -70,7 +70,7 @@ print(f"Arclength of pursuer: {arclength_pursuer:.2f}")
 print(f"Arclength of target: {arclength_target:.2f}")
 
 ## Plotting
-fig = plt.figure(figsize=(5, 5))
+fig = plt.figure()#figsize=(5, 5))
 ax = fig.add_subplot(111, projection='3d')
 # Pursuer #
 ax.plot(x_pursuer, y_pursuer, z_pursuer, color='blue')
@@ -91,4 +91,5 @@ ax.set_ylabel('y')
 ax.set_zlabel('z')
 ax.legend()
 ax.grid(True)
+ax.view_init(90,-90)
 plt.show()

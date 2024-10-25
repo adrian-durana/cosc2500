@@ -8,20 +8,20 @@ With arclength to check lengths
 """
 
 ## Parameters
-k = 0.75
-x0, y0 = 0, 2
-tmax = np.pi*6
+k = 0.999
+x0, y0 = 0, 0
+tmax = np.pi*18
 h = 0.001
 t_eval = np.linspace(0, tmax, int(1/h))
 
 ## Target trajectory
-def T_x(t): return t
-def T_y(t): return np.sin(t)
+def T_x(t): return np.cos(t) #np.cos(2*t)*np.cos(t)
+def T_y(t): return np.sin(t) #np.cos(2*t)*np.sin(t)
 def T(t): return np.array([T_x(t), T_y(t)])
 
 ## Target derivative
-def dT_x(t): return 0*t + 1 
-def dT_y(t): return np.cos(t) 
+def dT_x(t): return -np.sin(t) # -(2*np.sin(2*t)*np.cos(t)+np.cos(2*t)*np.sin(t))
+def dT_y(t): return np.cos(t) # -2*np.sin(2*t)*np.sin(t)+np.cos(2*t)*np.cos(t)
 def dT(t): return np.array([dT_x(t), dT_y(t)])
 
 ## Pursuer trajectory - system of ODEs
@@ -36,7 +36,7 @@ def pursuit_curve(t, P):
 def proximity_event(t, P):
     x, y = P
     distance = np.linalg.norm(T(t) - np.array([x, y])) # Norm of distance vector 
-    return distance - 0.01  # Trigger when distance is less than 1e-6
+    return distance - 0.001  # Trigger when distance is less than 1e-6
 proximity_event.terminal = True  # Terminate integration if event occurs
 
 ## ODE solution
