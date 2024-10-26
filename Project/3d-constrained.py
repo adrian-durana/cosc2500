@@ -30,19 +30,19 @@ def surface_zy(x,y):
 ## Parameters
 k = 0.5
 x0, y0 = 5, 0
-tmax = 25
+tmax = 10
 h = 0.001
 t_eval = np.linspace(0, tmax, int(1/h))
 
 ## Target trajectory, constrained to surface
-def T_x(t): return np.cos(t)
-def T_y(t): return np.sin(t)
+def T_x(t): return 0*t #np.cos(t)
+def T_y(t): return t #np.sin(t)
 def T_z(t): return surface_z(T_x(t), T_y(t))
 def T(t): return np.array([T_x(t), T_y(t), T_z(t)])
 
 ## Target derivative
-def dT_x(t): return -np.sin(t)
-def dT_y(t): return np.cos(t)
+def dT_x(t): return 0*t #-np.sin(t)
+def dT_y(t): return 0*t + 1 #np.cos(t)
 def dT_z(t):
     dx_dt = dT_x(t)
     dy_dt = dT_y(t)

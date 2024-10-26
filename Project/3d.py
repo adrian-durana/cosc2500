@@ -8,7 +8,7 @@ With arclength to check lengths
 """
 
 ## Parameters
-k = 2
+k = 1
 x0, y0, z0 = 5, 0, 0
 tmax = 5
 h = 0.001
